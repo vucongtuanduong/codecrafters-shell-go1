@@ -11,12 +11,12 @@ A bash-inspired shell built from scratch in Go with the help of CodeCrafters
   - [x] `pwd`
   - [x] `cd` - change directory (absolute path, relative path, home directory)
 - [x] **Execute external programs** available in the `PATH`
-- [ ] Navigation
-  - [ ] pwd builtin
-  - [ ] cd builtin
+- [x] Navigation
+  - [x] pwd builtin
+  - [x] cd builtin
 - [ ] Quoting
-  - [ ] Single quotes
-  - [ ] Double quotes
+  - [x] Single quotes
+  - [x] Double quotes
 - [ ] Redirection
 - [ ] Autocompletion
 - [ ] Pipelines
