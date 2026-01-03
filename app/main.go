@@ -32,7 +32,6 @@ func repl(prompt string, reader *bufio.Reader) {
 			os.Exit(1)
 		}
 		fields := command.SplitArgsLine(line)
-		fmt.Println(fields)
 		if len(fields) == 0 {
 			continue
 		}
