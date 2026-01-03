@@ -31,7 +31,8 @@ func repl(prompt string, reader *bufio.Reader) {
 			fmt.Fprintln(os.Stderr, "Error reading input:", err)
 			os.Exit(1)
 		}
-		fields := strings.Fields(line)
+		fields := command.SplitArgsLine(line)
+		fmt.Println(fields)
 		if len(fields) == 0 {
 			continue
 		}
