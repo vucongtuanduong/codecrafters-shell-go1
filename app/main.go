@@ -45,6 +45,8 @@ func repl(prompt string, reader *bufio.Reader) {
 			fmt.Println(strings.Join(args, " "))
 		case "type":
 			command.TypeCommandHandling(args)
+		case "pwd":
+			command.PwdCommandHandling()
 		default:
 			command.DefaultShellCommand(cmd, args)
 		}
