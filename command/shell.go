@@ -28,8 +28,8 @@ func SplitArgsLine(line string) []string {
 	var args []string
 	var b strings.Builder
 	inSingle := false
-
-	for i, r := range line {
+	inDouble := false
+	for _, r := range line {
 		if inSingle {
 			if r == '\'' {
 				inSingle = false
@@ -39,29 +39,27 @@ func SplitArgsLine(line string) []string {
 			b.WriteRune(r)
 			continue
 		}
-
-		// not in single quotes
-		if r == '\'' {
-			inSingle = true
-			continue
-		}
-
-		if unicode.IsSpace(r) {
-			// whitespace separates tokens when not in quotes
-			if b.Len() > 0 {
-				args = append(args, b.String())
-				b.Reset()
+		if inDouble {
+			if r == '"' {
+				inDouble = false
+				continue
 			}
+			b.WriteRune(r)
 			continue
 		}
-
-		// normal character
-		b.WriteRune(r)
-
-		// last rune: flush
-		if i == len(line)-1 {
-			if b.Len() > 0 {
-				args = append(args, b.String())
+		switch r {
+		case '\'':
+			inSingle = true
+		case '"':
+			inDouble = true
+		default:
+			if unicode.IsSpace(r) {
+				if b.Len() > 0 {
+					args = append(args, b.String())
+					b.Reset()
+				}
+			} else {
+				b.WriteRune(r)
 			}
 		}
 	}
