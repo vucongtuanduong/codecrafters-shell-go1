@@ -10,6 +10,7 @@ var Builtins = map[string]struct{}{
 	"exit": {},
 	"echo": {},
 	"type": {},
+	"pwd":  {},
 }
 
 func TypeCommandHandling(args []string) {
