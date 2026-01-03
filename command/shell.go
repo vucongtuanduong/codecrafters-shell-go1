@@ -18,5 +18,5 @@ func runCommand(cmd string, args []string) {
 	runCmd.Stdin = os.Stdin
 	runCmd.Stdout = os.Stdout
 	runCmd.Stderr = os.Stderr
-	runCmd.Run()
+	_ = runCmd.Run()
 }
