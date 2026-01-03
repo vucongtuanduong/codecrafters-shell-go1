@@ -9,7 +9,7 @@ A bash-inspired shell built from scratch in Go with the help of CodeCrafters
   - [x] `echo` — print the arguments
   - [x] `type` — show whether a command is a builtin or where an executable lives
   - [x] `pwd`
-  - [x] `cd`
+  - [x] `cd` - change directory (absolute path, relative path, home directory)
 - [x] **Execute external programs** available in the `PATH`
 - [ ] Navigation
   - [ ] pwd builtin

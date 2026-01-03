@@ -11,6 +11,10 @@ func CdCommandHandling(cmd string, args []string) {
 		return
 	}
 	directory := args[0]
+	if directory == "~" {
+		cdHomeDirectory()
+		return
+	}
 	info, err := os.Stat(directory)
 	if err != nil {
 		if os.IsNotExist(err) {
@@ -28,6 +32,13 @@ func CdCommandHandling(cmd string, args []string) {
 	}
 	if err = os.Chdir(directory); err != nil {
 		fmt.Fprintf(os.Stderr, "%s: %s: failed to change directory\n", cmd, directory)
+		return
+	}
+}
+func cdHomeDirectory() {
+	homeDir := os.Getenv("HOME")
+	if err := os.Chdir(homeDir); err != nil {
+		fmt.Fprintf(os.Stderr, "failed to change directory\n")
 		return
 	}
 }
