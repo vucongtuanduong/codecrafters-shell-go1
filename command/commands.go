@@ -73,19 +73,23 @@ func ExecutePipeline(cmds [][]string, stdout io.Writer, stderr io.Writer) {
 		if handler, ok := BuiltinRegistry[name]; ok {
 			// If builtin is not the last command, connect it to the next via io.Pipe()
 			if i < len(cmds)-1 {
-				pr, pw := io.Pipe()
+				rf, wf, err := os.Pipe()
+				if err != nil {
+					cleanUpProcesses(processes, prevReader)
+					return
+				}
 				done := make(chan struct{})
 				//Run builtin in goroutine writing to pw
-				go func(h CommandHandler, args []string, out *io.PipeWriter, done chan struct{}) {
+				go func(h CommandHandler, args []string, out *os.File, done chan struct{}) {
 					h(args, out)
 					out.Close()
 					close(done)
-				}(handler, cmdArgs[1:], pw, done)
+				}(handler, cmdArgs[1:], wf, done)
 				// Parent doesn't hold writer; the reader becomes prevReader for next command.
 				if prevReader != nil {
 					prevReader.Close()
 				}
-				prevReader = pr
+				prevReader = rf
 				builtInCmds = append(builtInCmds, done)
 			} else {
 				// Last builtin — run it synchronously, writing to final stdout.
