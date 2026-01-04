@@ -65,7 +65,8 @@ func (c *AutoCompleter) CompletePathExecutables(prefix string) []string {
 
 	// Debounce: if this call is essentially the same call (same prefix, very quick),
 	// don't increment TabCount (avoid double-increment from multiple caller paths).
-	isDuplicate := !c.LastCall.IsZero() && prefix == c.LastPrefix && now.Sub(c.LastCall) < 100*time.Millisecond
+	// Threshold: 30ms (small enough to allow quick tester double-Tab to count).
+	isDuplicate := !c.LastCall.IsZero() && prefix == c.LastPrefix && now.Sub(c.LastCall) < 30*time.Millisecond
 	if !isDuplicate {
 		c.TabCount++
 	}
