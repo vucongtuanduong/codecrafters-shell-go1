@@ -69,7 +69,8 @@ func (c *AutoCompleter) CompletePathExecutables(prefix string) []string {
 	if len(matches) == 1 {
 		//only 1 match -> complete and add trailing space
 		c.TabCount = 0
-		return []string{matches[0] + " "}
+		suffix := matches[0][len(prefix):]
+		return []string{suffix + " "}
 	}
 	//multiple matches -> try longest common prefix(LCP)
 	sort.Strings(matches)
@@ -77,7 +78,7 @@ func (c *AutoCompleter) CompletePathExecutables(prefix string) []string {
 	//if lcp extends the typed prefix, return it to complete to that point
 	if len(lcp) > len(prefix) {
 		c.TabCount = 0
-		return []string{lcp}
+		return []string{lcp[len(prefix):]}
 	}
 	// lcp == prefix -> first tab rings bell, second tab prints matches
 	if c.TabCount == 1 {
@@ -85,7 +86,7 @@ func (c *AutoCompleter) CompletePathExecutables(prefix string) []string {
 		return nil
 	}
 	fmt.Println()
-	fmt.Println(strings.Join(matches, ""))
+	fmt.Println(strings.Join(matches, "  "))
 	c.Readline.Refresh()
 	c.TabCount = 0
 	return nil
