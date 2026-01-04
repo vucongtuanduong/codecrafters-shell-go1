@@ -29,7 +29,6 @@ func main() {
 		}
 
 		comarr := command.ParseInput(input)
-		fmt.Println(comarr)
 		// Parse redirection.
 		args, redirectPath := command.ParseAndSetupRedirection(comarr)
 
