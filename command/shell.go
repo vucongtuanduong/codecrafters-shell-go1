@@ -29,7 +29,16 @@ func SplitArgsLine(line string) []string {
 	var b strings.Builder
 	inSingle := false
 	inDouble := false
+	escaped := false
+	if len(line) > 0 && line[len(line)-1] == '\n' {
+		line = line[:len(line)-1]
+	}
 	for _, r := range line {
+		if escaped {
+			b.WriteRune(r)
+			escaped = false
+			continue
+		}
 		if inSingle {
 			if r == '\'' {
 				inSingle = false
@@ -48,6 +57,8 @@ func SplitArgsLine(line string) []string {
 			continue
 		}
 		switch r {
+		case '\\':
+			escaped = true
 		case '\'':
 			inSingle = true
 		case '"':
