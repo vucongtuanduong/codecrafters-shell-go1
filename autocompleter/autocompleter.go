@@ -48,7 +48,7 @@ func (c *AutoCompleter) CompletePathExecutables(prefix string) []string {
 
 			if strings.HasPrefix(name, prefix) && info.Mode()&0111 != 0 {
 				if _, ok := command.Builtins[name]; !ok {
-					matches = append(matches, fullPath)
+					matches = append(matches, name)
 				}
 			}
 		}
@@ -71,7 +71,7 @@ func (c *AutoCompleter) CompletePathExecutables(prefix string) []string {
 	return nil
 }
 func FinalCompleter() *AutoCompleter {
-	completer := AutoCompleter{}
+	completer := &AutoCompleter{}
 
 	inner := readline.NewPrefixCompleter(
 		readline.PcItem("echo"),
@@ -82,7 +82,6 @@ func FinalCompleter() *AutoCompleter {
 		readline.PcItem("pwd"),
 		readline.PcItemDynamic(completer.CompletePathExecutables),
 	)
-	return &AutoCompleter{
-		Completer: inner,
-	}
+	completer.Completer = inner
+	return completer
 }

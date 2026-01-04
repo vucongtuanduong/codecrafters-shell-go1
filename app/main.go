@@ -27,7 +27,7 @@ func main() {
 		panic(err)
 	}
 	completer.SetInstance(rl)
-	//defer rl.Close()
+	defer rl.Close()
 
 	for {
 		line, err := rl.Readline()
