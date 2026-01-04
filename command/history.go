@@ -38,6 +38,9 @@ func HistoryCommand(args []string, stdout io.Writer) {
 				}
 				appendHistory(line)
 			}
+		} else if args[0] == "-w" {
+			writeHistoryToFile(args[1], stdout)
+			return
 		}
 		return
 	}
@@ -58,4 +61,16 @@ func HistoryCommand(args []string, stdout io.Writer) {
 }
 func appendHistory(s string) {
 	History = append(History, s)
+}
+func writeHistoryToFile(filePath string, stdout io.Writer) {
+	flag := os.O_CREATE | os.O_WRONLY | os.O_TRUNC
+	file, err := os.OpenFile(filePath, flag, 0644)
+	if err != nil {
+		fmt.Fprintf(stdout, "failed to open file %s: %v\n", filePath, err)
+		return
+	}
+	defer file.Close()
+	for _, line := range History {
+		fmt.Fprintln(file, line)
+	}
 }
