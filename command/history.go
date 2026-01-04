@@ -21,11 +21,13 @@ func HistoryCommand(args []string, stdout io.Writer) {
 		// handle parse error (set default, return, or log)
 		n = 0
 	}
-	minIndex := len(History)
+	length := len(History)
+	minIndex := length
 	if n < minIndex {
 		minIndex = n
 	}
-	for i := 0; i < minIndex; i++ {
+	minIndex = length - minIndex
+	for i := minIndex; i < length; i++ {
 		fmt.Printf("%5d  %s\n", i+1, History[i])
 	}
 }
