@@ -16,6 +16,7 @@ type AutoCompleter struct {
 	Readline   *readline.Instance
 	TabCount   int
 	LastPrefix string
+	LastWasTab bool
 }
 
 func (c *AutoCompleter) Do(line []rune, pos int) (newLine [][]rune, length int) {
@@ -55,8 +56,13 @@ func (c *AutoCompleter) CompletePathExecutables(prefix string) []string {
 	if prefix != c.LastPrefix {
 		c.TabCount = 0
 		c.LastPrefix = prefix
+		c.LastWasTab = false
 	}
-	c.TabCount++
+	// Only increment TabCount once per physical Tab press for the current prefix
+	if !c.LastWasTab {
+		c.TabCount++
+		c.LastWasTab = true
+	}
 	dirs := command.GetPathEnvDirectories()
 	var matches []string
 	for _, dir := range dirs {
@@ -89,6 +95,7 @@ func (c *AutoCompleter) CompletePathExecutables(prefix string) []string {
 	if len(matches) == 1 {
 		//only 1 match -> complete and add trailing space
 		c.TabCount = 0
+		c.LastWasTab = false
 		suffix := matches[0][len(prefix):]
 		return []string{suffix + " "}
 	}
@@ -98,6 +105,7 @@ func (c *AutoCompleter) CompletePathExecutables(prefix string) []string {
 	//if lcp extends the typed prefix, return it to complete to that point
 	if len(lcp) > len(prefix) {
 		c.TabCount = 0
+		c.LastWasTab = false
 		return []string{lcp[len(prefix):]}
 	}
 	// lcp == prefix -> first tab rings bell, second tab prints matches
@@ -109,6 +117,7 @@ func (c *AutoCompleter) CompletePathExecutables(prefix string) []string {
 	fmt.Println(strings.Join(matches, "  "))
 	c.Readline.Refresh()
 	c.TabCount = 0
+	c.LastWasTab = false
 	return nil
 }
 func FinalCompleter() *AutoCompleter {
