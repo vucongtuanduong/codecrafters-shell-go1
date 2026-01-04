@@ -37,19 +37,3 @@ func GetPathEnvDirectories() []string {
 	pathEnv := os.Getenv("PATH")
 	return strings.Split(pathEnv, string(os.PathListSeparator))
 }
-func GetExternalCommandNameInPath() []string {
-	res := make([]string, 1)
-	directories := GetPathEnvDirectories()
-	for _, dir := range directories {
-		files, err := os.ReadDir(dir)
-		if err != nil {
-			continue
-		}
-		for _, file := range files {
-			if !file.IsDir() {
-				res = append(res, file.Name())
-			}
-		}
-	}
-	return res
-}
