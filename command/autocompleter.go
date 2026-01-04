@@ -114,11 +114,11 @@ func getBinariesCompletion() []readline.PrefixCompleterInterface {
 	for i := range commands {
 		items = append(items, readline.PcItem(commands[i]))
 	}
-	// Add System Binaries
-	systemBinariesNamePath := GetExternalCommandNameInPath()
-	for i := range systemBinariesNamePath {
-		items = append(items, readline.PcItem(systemBinariesNamePath[i]))
-	}
+	//// Add System Binaries
+	//systemBinariesNamePath := GetExternalCommandNameInPath()
+	//for i := range systemBinariesNamePath {
+	//	items = append(items, readline.PcItem(systemBinariesNamePath[i]))
+	//}
 	return items
 }
 func FinalCompleter() *AutoCompleter {
