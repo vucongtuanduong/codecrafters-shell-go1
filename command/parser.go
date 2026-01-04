@@ -14,7 +14,7 @@ type BellCompleter struct {
 func (b *BellCompleter) Do(line []rune, pos int) (newLine [][]rune, length int) {
 	newLine, length = b.Completer.Do(line, pos)
 	if len(newLine) == 0 {
-		fmt.Println("\\x07")
+		fmt.Println("\a")
 	}
 	return newLine, length
 }
