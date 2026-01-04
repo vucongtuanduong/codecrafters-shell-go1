@@ -3,7 +3,9 @@ package command
 import (
 	"fmt"
 	"io"
+	"os"
 	"strconv"
+	"strings"
 )
 
 var History []string
@@ -12,14 +14,30 @@ func AppendHistory(cmd string) {
 	History = append(History, cmd)
 }
 func HistoryCommand(args []string, stdout io.Writer) {
-	if len(args) > 1 {
-		fmt.Println("Too many arguments")
-		return
-	}
 	length := len(History)
 	if len(args) == 0 {
 		for i := 0; i < length; i++ {
 			fmt.Printf("%5d  %s\n", i+1, History[i])
+		}
+		return
+	}
+	if len(args) == 2 {
+		if args[0] == "-r" {
+			filePath := args[1]
+			fileContent, err := os.ReadFile(filePath)
+			if err != nil {
+				fmt.Fprintf(stdout, "failed to read history from: %s: %v\n", filePath, err)
+				return
+			}
+			lines := strings.Split(string(fileContent), "\n")
+			for _, line := range lines {
+				//ignore empty lines
+				line = strings.TrimSpace(line)
+				if line == "" {
+					continue
+				}
+				appendHistory(line)
+			}
 		}
 		return
 	}
@@ -37,4 +55,7 @@ func HistoryCommand(args []string, stdout io.Writer) {
 	for i := minIndex; i < length; i++ {
 		fmt.Printf("%5d  %s\n", i+1, History[i])
 	}
+}
+func appendHistory(s string) {
+	History = append(History, s)
 }
