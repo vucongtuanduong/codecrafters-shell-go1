@@ -5,40 +5,39 @@ import (
 	"os"
 )
 
-func CdCommandHandling(cmd string, args []string) {
+type CdCommand struct{}
+
+func (c *CdCommand) Execute(args []string) error {
 	if len(args) > 1 {
-		fmt.Fprintln(os.Stderr, "cd command requires only one parameter")
-		return
+		return fmt.Errorf("cd command requires only one parameter")
 	}
 	directory := args[0]
 	if directory == "~" {
-		cdHomeDirectory()
-		return
+		return cdHomeDirectory()
 	}
 	info, err := os.Stat(directory)
 	if err != nil {
 		if os.IsNotExist(err) {
-			fmt.Fprintf(os.Stderr, "%s: %s: No such file or directory\n", cmd, directory)
-			return
+			return fmt.Errorf("%s: No such file or directory", directory)
 		}
 		if os.IsPermission(err) {
-			fmt.Fprintf(os.Stderr, "%s: %s: permission denied\n", cmd, directory)
-			return
+			return fmt.Errorf("%s: permission denied", directory)
 		}
+		return err
 	}
 	if !info.IsDir() {
-		fmt.Fprintf(os.Stderr, "%s: %s: is not a directory\n", cmd, directory)
-		return
+		return fmt.Errorf("%s: is not a directory", directory)
 	}
 	if err = os.Chdir(directory); err != nil {
-		fmt.Fprintf(os.Stderr, "%s: %s: failed to change directory\n", cmd, directory)
-		return
+		return fmt.Errorf("%s: failed to change directory", directory)
 	}
+	return nil
 }
-func cdHomeDirectory() {
+
+func cdHomeDirectory() error {
 	homeDir := os.Getenv("HOME")
 	if err := os.Chdir(homeDir); err != nil {
-		fmt.Fprintf(os.Stderr, "failed to change directory\n")
-		return
+		return fmt.Errorf("failed to change directory")
 	}
+	return nil
 }

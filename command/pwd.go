@@ -5,11 +5,13 @@ import (
 	"os"
 )
 
-func PwdCommandHandling() {
+type PwdCommand struct{}
+
+func (c *PwdCommand) Execute(args []string) error {
 	dir, err := os.Getwd()
 	if err != nil {
-		fmt.Fprintln(os.Stderr, "error printing working directory")
-		return
+		return fmt.Errorf("error printing working directory")
 	}
 	fmt.Println(dir)
+	return nil
 }

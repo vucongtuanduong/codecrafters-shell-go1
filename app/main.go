@@ -6,7 +6,6 @@ import (
 	"fmt"
 	"io"
 	"os"
-	"strings"
 
 	"github.com/codecrafters-io/shell-starter-go/command"
 )
@@ -16,10 +15,11 @@ var _ = fmt.Print
 
 func main() {
 	reader := bufio.NewReader(os.Stdin)
-	repl("$ ", reader)
+	reg := command.NewCommandRegistry()
+	repl("$ ", reader, reg)
 
 }
-func repl(prompt string, reader *bufio.Reader) {
+func repl(prompt string, reader *bufio.Reader, reg *command.Registry) {
 	for {
 		fmt.Print(prompt)
 		line, err := reader.ReadString('\n')
@@ -31,26 +31,24 @@ func repl(prompt string, reader *bufio.Reader) {
 			fmt.Fprintln(os.Stderr, "Error reading input:", err)
 			os.Exit(1)
 		}
-		fields := command.SplitArgsLine(line)
-		if len(fields) == 0 {
+		args := command.ParseLine(line)
+		if len(args) == 0 {
 			continue
 		}
-		cmd := fields[0]
-		args := fields[1:]
+		cmdName := args[0]
+		cmdArgs := args[1:]
 
-		switch cmd {
-		case "exit":
-			os.Exit(0)
-		case "echo":
-			fmt.Println(strings.Join(args, " "))
-		case "type":
-			command.TypeCommandHandling(args)
-		case "pwd":
-			command.PwdCommandHandling()
-		case "cd":
-			command.CdCommandHandling(cmd, args)
-		default:
-			command.DefaultShellCommand(cmd, args)
+		if cmd, ok := reg.Get(cmdName); ok {
+			if err := cmd.Execute(cmdArgs); err != nil {
+				fmt.Fprintln(os.Stderr, err)
+			}
+		} else {
+			// Fallback to external command
+			cmd, err := reg.Get("external")
+			if !err {
+				fmt.Fprintln(os.Stderr, err)
+			}
+			cmd.Execute(args)
 		}
 	}
 }

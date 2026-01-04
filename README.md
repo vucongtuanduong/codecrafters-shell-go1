@@ -14,9 +14,11 @@ A bash-inspired shell built from scratch in Go with the help of CodeCrafters
 - [x] Navigation
   - [x] pwd builtin
   - [x] cd builtin
-- [ ] Quoting
+- [x] Quoting
   - [x] Single quotes
   - [x] Double quotes
+  - [x] Backslash outside quotes
+  - [x] Backlash within single/double quotes (for double quote backslash only escapes ", \, $, `, and newline.)
 - [ ] Redirection
 - [ ] Autocompletion
 - [ ] Pipelines
