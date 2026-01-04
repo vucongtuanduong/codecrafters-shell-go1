@@ -26,7 +26,7 @@ func IsBuiltin(cmd string) bool {
 	_, ok := builtins[cmd]
 	return ok
 }
-func ExecuteCommand(args []string, stdout io.Writer) {
+func ExecuteCommand(args []string, stdout io.Writer, stderr io.Writer) {
 	if len(args) == 0 {
 		return
 	}
@@ -39,7 +39,7 @@ func ExecuteCommand(args []string, stdout io.Writer) {
 	}
 
 	// External.
-	if !ExternalCommand(args, stdout) {
+	if !ExternalCommand(args, stdout, stderr) {
 		fmt.Fprintf(stdout, "%s: command not found\n", name)
 	}
 }

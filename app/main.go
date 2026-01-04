@@ -3,7 +3,6 @@ package main
 import (
 	"bufio"
 	"fmt"
-	"io"
 	"os"
 	"strings"
 
@@ -30,20 +29,31 @@ func main() {
 
 		comarr := command.ParseInput(input)
 		// Parse redirection.
-		args, redirectPath := command.ParseAndSetupRedirection(comarr)
+		args, stdoutFilePath, isStdoutAppend, stderrFilePath, isStderrAppend := command.ParseAndSetupRedirection(comarr)
 
-		// Set stdout writer.
-		var stdout io.Writer = os.Stdout
-		if redirectPath != "" {
-			file, err := os.OpenFile(redirectPath, os.O_WRONLY|os.O_CREATE|os.O_TRUNC, 0644)
-			if err != nil {
-				fmt.Fprintf(os.Stderr, "err: %v\n", err)
-				continue
+		// Set writers.
+		stdout, closeStdout, err := command.OpenRedirectFile(stdoutFilePath, isStdoutAppend, os.Stdout)
+		if err != nil {
+			fmt.Fprintf(os.Stderr, "err: %v\n", err)
+			continue
+		}
+		stderr, closeStderr, err := command.OpenRedirectFile(stderrFilePath, isStderrAppend, os.Stderr)
+		if err != nil {
+			fmt.Fprintf(os.Stderr, "err: %v\n", err)
+			if closeStdout != nil {
+				closeStdout()
 			}
-			defer file.Close()
-			stdout = file
+			continue
 		}
 
-		command.ExecuteCommand(args, stdout)
+		// Defer closes.
+		if closeStdout != nil {
+			defer closeStdout()
+		}
+		if closeStderr != nil {
+			defer closeStderr()
+		}
+
+		command.ExecuteCommand(args, stdout, stderr)
 	}
 }

@@ -8,13 +8,13 @@ import (
 	"strings"
 )
 
-func ExternalCommand(args []string, stdout io.Writer) bool {
+func ExternalCommand(args []string, stdout io.Writer, stderr io.Writer) bool {
 	name := args[0]
 	cmdArgs := args[1:]
 	if path, ok := FindInPath(name); ok {
 		cmd := exec.Command(path, cmdArgs...)
 		cmd.Stdout = stdout
-		cmd.Stderr = os.Stderr
+		cmd.Stderr = stderr
 		cmd.Args[0] = name
 		cmd.Run()
 		return true
