@@ -94,6 +94,6 @@ func main() {
 		} else {
 			command.ExecutePipeline(segments, stdout, stderr)
 		}
-
+		command.History = append(command.History, strings.Join(comarr, " "))
 	}
 }

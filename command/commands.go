@@ -18,11 +18,12 @@ var Builtins = map[string]struct{}{
 	"history": {},
 }
 var BuiltinRegistry = map[string]CommandHandler{
-	"exit": ExitCommand,
-	"echo": EchoCommand,
-	"pwd":  PwdCommand,
-	"cd":   CdCommand,
-	"type": TypeCommand,
+	"exit":    ExitCommand,
+	"echo":    EchoCommand,
+	"pwd":     PwdCommand,
+	"cd":      CdCommand,
+	"type":    TypeCommand,
+	"history": HistoryCommand,
 }
 
 func IsBuiltin(cmd string) bool {
