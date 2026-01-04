@@ -31,6 +31,12 @@ A bash-inspired shell built from scratch in Go with the help of CodeCrafters
   - [x] Partial completion
 - [x] Pipelines
   - [x] Multi-command pipelines with built-ins
+- [x] History
+  - [x] Read history from file
+  - [x] Write history to file
+  - [x] Append history to file
+  - [x] Read history on startup
+  - [x] Write/append history on exit
 ---
 
 ## Quick start 
