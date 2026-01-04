@@ -16,12 +16,19 @@ func HistoryCommand(args []string, stdout io.Writer) {
 		fmt.Println("Too many arguments")
 		return
 	}
+	length := len(History)
+	if len(args) == 0 {
+		for i := 0; i < length; i++ {
+			fmt.Printf("%5d  %s\n", i+1, History[i])
+		}
+		return
+	}
 	n, err := strconv.Atoi(args[0])
 	if err != nil {
 		// handle parse error (set default, return, or log)
 		n = 0
 	}
-	length := len(History)
+
 	minIndex := length
 	if n < minIndex {
 		minIndex = n
