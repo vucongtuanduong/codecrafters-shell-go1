@@ -22,11 +22,12 @@ func main() {
 		Prompt:       PROMPT,
 		AutoComplete: autocompleter.FinalCompleter(),
 	})
-	completer.SetInstance(rl)
+
 	if err != nil {
 		panic(err)
 	}
-	defer rl.Close()
+	completer.SetInstance(rl)
+	//defer rl.Close()
 
 	for {
 		line, err := rl.Readline()
