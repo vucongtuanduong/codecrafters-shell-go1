@@ -1,44 +1,10 @@
 package command
 
 import (
-	"fmt"
-	"github.com/chzyer/readline"
 	"strings"
 	"unicode"
 )
 
-type BellCompleter struct {
-	Completer readline.AutoCompleter
-}
-
-func (b *BellCompleter) Do(line []rune, pos int) (newLine [][]rune, length int) {
-	newLine, length = b.Completer.Do(line, pos)
-	if len(newLine) == 0 {
-		fmt.Println("\a")
-	}
-	return newLine, length
-}
-func getBinariesCompletion() []readline.PrefixCompleterInterface {
-	var items []readline.PrefixCompleterInterface
-	commands := []string{"cd", "echo", "pwd", "exit", "type", "history"}
-	for i := range commands {
-		items = append(items, readline.PcItem(commands[i]))
-	}
-	// Add System Binaries
-	systemBinariesNamePath := GetExternalCommandNameInPath()
-	for i := range systemBinariesNamePath {
-		items = append(items, readline.PcItem(systemBinariesNamePath[i]))
-	}
-	return items
-}
-func FinalCompleter() *BellCompleter {
-
-	completer := readline.NewPrefixCompleter(
-		getBinariesCompletion()...,
-	)
-	finalCompleter := &BellCompleter{Completer: completer}
-	return finalCompleter
-}
 func ParseInput(line string) []string {
 	var args []string
 	var b strings.Builder

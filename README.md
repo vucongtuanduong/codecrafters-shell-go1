@@ -23,6 +23,11 @@ A bash-inspired shell built from scratch in Go with the help of CodeCrafters
   - [x] Redirect stdout and stderr
   - [x] Append stdout and stderr
 - [ ] Autocompletion
+  - [x] Builtin completion
+  - [x] Completion with arguments
+  - [x] Missing completions
+  - [x] Executable completion
+  - 
 - [ ] Pipelines
 ---
 

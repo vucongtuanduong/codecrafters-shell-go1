@@ -8,7 +8,7 @@ import (
 
 type CommandHandler func(args []string, stdout io.Writer)
 
-var builtins = map[string]struct{}{
+var Builtins = map[string]struct{}{
 	"exit": {},
 	"echo": {},
 	"pwd":  {},
@@ -24,7 +24,7 @@ var BuiltinRegistry = map[string]CommandHandler{
 }
 
 func IsBuiltin(cmd string) bool {
-	_, ok := builtins[cmd]
+	_, ok := Builtins[cmd]
 	return ok
 }
 func GetBuiltinCompletions(prefix string) []string {
