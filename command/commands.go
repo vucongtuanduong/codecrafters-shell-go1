@@ -5,17 +5,17 @@ import (
 	"io"
 	"os"
 	"os/exec"
-	"strings"
 )
 
 type CommandHandler func(args []string, stdout io.Writer)
 
 var Builtins = map[string]struct{}{
-	"exit": {},
-	"echo": {},
-	"pwd":  {},
-	"cd":   {},
-	"type": {},
+	"exit":    {},
+	"echo":    {},
+	"pwd":     {},
+	"cd":      {},
+	"type":    {},
+	"history": {},
 }
 var BuiltinRegistry = map[string]CommandHandler{
 	"exit": ExitCommand,
@@ -28,15 +28,6 @@ var BuiltinRegistry = map[string]CommandHandler{
 func IsBuiltin(cmd string) bool {
 	_, ok := Builtins[cmd]
 	return ok
-}
-func GetBuiltinCompletions(prefix string) []string {
-	var matches []string
-	for builtin := range BuiltinRegistry {
-		if strings.HasPrefix(builtin, prefix) {
-			matches = append(matches, builtin+" ")
-		}
-	}
-	return matches
 }
 func ExecuteCommand(args []string, stdout io.Writer, stderr io.Writer) {
 	if len(args) == 0 {

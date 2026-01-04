@@ -22,14 +22,15 @@ A bash-inspired shell built from scratch in Go with the help of CodeCrafters
 - [x] Redirection
   - [x] Redirect stdout and stderr
   - [x] Append stdout and stderr
-- [ ] Autocompletion
+- [x] Autocompletion
   - [x] Builtin completion
   - [x] Completion with arguments
   - [x] Missing completions
   - [x] Executable completion
   - [x] Multiple completion
-  - [ ] Partial completion
-- [ ] Pipelines
+  - [x] Partial completion
+- [x] Pipelines
+  - [x] Multi-command pipelines with built-ins
 ---
 
 ## Quick start 
