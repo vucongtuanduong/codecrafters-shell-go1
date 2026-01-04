@@ -1,10 +1,31 @@
 package command
 
 import (
+	"fmt"
+	"github.com/chzyer/readline"
 	"strings"
 	"unicode"
 )
 
+type BellCompleter struct {
+	Completer readline.AutoCompleter
+}
+
+func (b *BellCompleter) Do(line []rune, pos int) (newLine [][]rune, length int) {
+	newLine, length = b.Completer.Do(line, pos)
+	if len(newLine) == 0 {
+		fmt.Println("\\x07")
+	}
+	return newLine, length
+}
+func FinalCompleter() *BellCompleter {
+	completer := readline.NewPrefixCompleter(
+		readline.PcItem("echo"),
+		readline.PcItem("exit"),
+	)
+	finalCompleter := &BellCompleter{Completer: completer}
+	return finalCompleter
+}
 func ParseInput(line string) []string {
 	var args []string
 	var b strings.Builder

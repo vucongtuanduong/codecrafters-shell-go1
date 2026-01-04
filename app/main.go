@@ -13,11 +13,9 @@ import (
 var _ = fmt.Print
 
 func main() {
-	completer := readline.NewPrefixCompleter(readline.PcItem("echo"),
-		readline.PcItem("exit"))
 	rl, err := readline.NewEx(&readline.Config{
 		Prompt:       "$ ",
-		AutoComplete: completer,
+		AutoComplete: command.FinalCompleter(),
 	})
 	if err != nil {
 		return
