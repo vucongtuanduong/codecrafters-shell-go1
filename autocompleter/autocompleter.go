@@ -40,7 +40,7 @@ func (c *AutoCompleter) CompletePathExecutables(prefix string) []string {
 		}
 		for _, file := range files {
 			name := file.Name()
-			fullPath := filepath.Join(prefix, name)
+			fullPath := filepath.Join(dir, name)
 			info, err := os.Stat(fullPath)
 			if err != nil {
 				continue
