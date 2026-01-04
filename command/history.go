@@ -9,6 +9,7 @@ import (
 )
 
 var History []string
+var lastAppendIndex int
 
 func AppendHistory(cmd string) {
 	History = append(History, cmd)
@@ -36,11 +37,14 @@ func HistoryCommand(args []string, stdout io.Writer) {
 				if line == "" {
 					continue
 				}
-				appendHistory(line)
+				AppendHistory(line)
 			}
 		} else if args[0] == "-w" {
 			writeHistoryToFile(args[1], stdout)
 			return
+		} else if args[0] == "-a" {
+			path := args[1]
+			appendHistoryToFile(path, stdout)
 		}
 		return
 	}
@@ -59,9 +63,6 @@ func HistoryCommand(args []string, stdout io.Writer) {
 		fmt.Printf("%5d  %s\n", i+1, History[i])
 	}
 }
-func appendHistory(s string) {
-	History = append(History, s)
-}
 func writeHistoryToFile(filePath string, stdout io.Writer) {
 	flag := os.O_CREATE | os.O_WRONLY | os.O_TRUNC
 	file, err := os.OpenFile(filePath, flag, 0644)
@@ -73,4 +74,18 @@ func writeHistoryToFile(filePath string, stdout io.Writer) {
 	for _, line := range History {
 		fmt.Fprintln(file, line)
 	}
+}
+func appendHistoryToFile(filePath string, stdout io.Writer) {
+	flag := os.O_CREATE | os.O_WRONLY | os.O_APPEND
+	file, err := os.OpenFile(filePath, flag, 0644)
+	if err != nil {
+		fmt.Fprintf(stdout, "failed to open file %s: %v\n", filePath, err)
+		return
+	}
+	defer file.Close()
+	for i := lastAppendIndex; i < len(History); i++ {
+		fmt.Fprintln(file, History[i])
+	}
+	lastAppendIndex = len(History)
+	return
 }

@@ -89,7 +89,7 @@ func main() {
 			fmt.Fprintln(os.Stderr, "invalid pipeline")
 			continue
 		}
-		command.History = append(command.History, strings.Join(comarr, " "))
+		command.AppendHistory(strings.Join(comarr, " "))
 		if len(segments) == 1 {
 			command.ExecuteCommand(segments[0], stdout, stderr)
 		} else {
