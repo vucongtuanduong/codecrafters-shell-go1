@@ -20,7 +20,7 @@ func main() {
 	completer := autocompleter.FinalCompleter()
 	rl, err := readline.NewEx(&readline.Config{
 		Prompt:       PROMPT,
-		AutoComplete: autocompleter.FinalCompleter(),
+		AutoComplete: completer,
 	})
 
 	if err != nil {
