@@ -27,7 +27,8 @@ A bash-inspired shell built from scratch in Go with the help of CodeCrafters
   - [x] Completion with arguments
   - [x] Missing completions
   - [x] Executable completion
-  - 
+  - [x] Multiple completion
+  - [ ] Partial completion
 - [ ] Pipelines
 ---
 
