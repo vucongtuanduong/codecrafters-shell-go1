@@ -92,7 +92,14 @@ func appendHistoryToFile(filePath string, stdout io.Writer) {
 	lastAppendIndex = len(History)
 	return
 }
+func markHistoryPersisted() {
+	lastAppendIndex = len(History)
+}
 func InitHistoryFromFile() {
-	dir := os.Getenv("HISTFILE")
-	readHistoryFromFile(dir, os.Stdout)
+	path := os.Getenv("HISTFILE")
+	if path != "" {
+		readHistoryFromFile(path, os.Stdout)
+		markHistoryPersisted()
+	}
+
 }
