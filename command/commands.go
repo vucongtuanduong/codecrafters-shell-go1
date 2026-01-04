@@ -3,6 +3,7 @@ package command
 import (
 	"fmt"
 	"io"
+	"strings"
 )
 
 type CommandHandler func(args []string, stdout io.Writer)
@@ -25,6 +26,15 @@ var BuiltinRegistry = map[string]CommandHandler{
 func IsBuiltin(cmd string) bool {
 	_, ok := builtins[cmd]
 	return ok
+}
+func GetBuiltinCompletions(prefix string) []string {
+	var matches []string
+	for builtin := range BuiltinRegistry {
+		if strings.HasPrefix(builtin, prefix) {
+			matches = append(matches, builtin+" ")
+		}
+	}
+	return matches
 }
 func ExecuteCommand(args []string, stdout io.Writer, stderr io.Writer) {
 	if len(args) == 0 {

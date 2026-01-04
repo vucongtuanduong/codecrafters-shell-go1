@@ -19,7 +19,9 @@ A bash-inspired shell built from scratch in Go with the help of CodeCrafters
   - [x] Double quotes
   - [x] Backslash outside quotes
   - [x] Backlash within single/double quotes (for double quote backslash only escapes ", \, $, `, and newline.)
-- [ ] Redirection
+- [x] Redirection
+  - [x] Redirect stdout and stderr
+  - [x] Append stdout and stderr
 - [ ] Autocompletion
 - [ ] Pipelines
 ---
