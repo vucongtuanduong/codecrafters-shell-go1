@@ -22,8 +22,8 @@ func ExternalCommand(args []string, stdout io.Writer, stderr io.Writer) bool {
 	return false
 }
 func FindInPath(command string) (string, bool) {
-	pathEnv := os.Getenv("PATH")
-	directories := strings.Split(pathEnv, ":")
+
+	directories := getPathEnvDirectories()
 
 	for _, dir := range directories {
 		fullPath := filepath.Join(dir, command)
@@ -32,4 +32,24 @@ func FindInPath(command string) (string, bool) {
 		}
 	}
 	return "", false
+}
+func getPathEnvDirectories() []string {
+	pathEnv := os.Getenv("PATH")
+	return strings.Split(pathEnv, string(os.PathListSeparator))
+}
+func GetExternalCommandNameInPath() []string {
+	res := make([]string, 1)
+	directories := getPathEnvDirectories()
+	for _, dir := range directories {
+		files, err := os.ReadDir(dir)
+		if err != nil {
+			continue
+		}
+		for _, file := range files {
+			if !file.IsDir() {
+				res = append(res, file.Name())
+			}
+		}
+	}
+	return res
 }

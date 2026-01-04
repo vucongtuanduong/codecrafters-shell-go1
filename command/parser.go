@@ -18,10 +18,23 @@ func (b *BellCompleter) Do(line []rune, pos int) (newLine [][]rune, length int) 
 	}
 	return newLine, length
 }
+func getBinariesCompletion() []readline.PrefixCompleterInterface {
+	var items []readline.PrefixCompleterInterface
+	commands := []string{"cd", "echo", "pwd", "exit", "type", "history"}
+	for i := range commands {
+		items = append(items, readline.PcItem(commands[i]))
+	}
+	// Add System Binaries
+	systemBinariesNamePath := GetExternalCommandNameInPath()
+	for i := range systemBinariesNamePath {
+		items = append(items, readline.PcItem(systemBinariesNamePath[i]))
+	}
+	return items
+}
 func FinalCompleter() *BellCompleter {
+
 	completer := readline.NewPrefixCompleter(
-		readline.PcItem("echo"),
-		readline.PcItem("exit"),
+		getBinariesCompletion()...,
 	)
 	finalCompleter := &BellCompleter{Completer: completer}
 	return finalCompleter
