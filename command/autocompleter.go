@@ -60,7 +60,7 @@ func (c *AutoCompleter) Do(line []rune, pos int) (newLine [][]rune, length int) 
 		}
 		//second tab -> print matches
 		fmt.Println()
-		fmt.Println(strings.Join(matches, " "))
+		fmt.Println(strings.Join(matches, "  "))
 		if c.Readline != nil {
 			c.Readline.Refresh()
 		}
