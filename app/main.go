@@ -6,19 +6,25 @@ import (
 	"strings"
 
 	"github.com/chzyer/readline"
+	"github.com/codecrafters-io/shell-starter-go/autocompleter"
 	"github.com/codecrafters-io/shell-starter-go/command"
+	"github.com/codecrafters-io/shell-starter-go/parser"
 )
 
 // Ensures gofmt doesn't remove the "fmt" import in stage 1 (feel free to remove this!)
 var _ = fmt.Print
 
+const PROMPT = "$ "
+
 func main() {
+	completer := autocompleter.FinalCompleter()
 	rl, err := readline.NewEx(&readline.Config{
-		Prompt:       "$ ",
-		AutoComplete: command.FinalCompleter(),
+		Prompt:       PROMPT,
+		AutoComplete: autocompleter.FinalCompleter(),
 	})
+	completer.SetInstance(rl)
 	if err != nil {
-		return
+		panic(err)
 	}
 	defer rl.Close()
 
@@ -33,7 +39,7 @@ func main() {
 			continue
 		}
 
-		comarr := command.ParseInput(input)
+		comarr := parser.ParseInput(input)
 		// Parse redirection.
 		args, stdoutFilePath, isStdoutAppend, stderrFilePath, isStderrAppend := command.ParseAndSetupRedirection(comarr)
 
