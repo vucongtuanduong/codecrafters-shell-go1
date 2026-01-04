@@ -8,7 +8,7 @@ import (
 	"strings"
 )
 
-func ExternalCommand(args []string, stdout io.Writer) {
+func ExternalCommand(args []string, stdout io.Writer) bool {
 	name := args[0]
 	cmdArgs := args[1:]
 	if path, ok := FindInPath(name); ok {
@@ -17,8 +17,9 @@ func ExternalCommand(args []string, stdout io.Writer) {
 		cmd.Stderr = os.Stderr
 		cmd.Args[0] = name
 		cmd.Run()
-		return
+		return true
 	}
+	return false
 }
 func FindInPath(command string) (string, bool) {
 	pathEnv := os.Getenv("PATH")

@@ -1,6 +1,7 @@
 package command
 
 import (
+	"fmt"
 	"io"
 )
 
@@ -38,5 +39,7 @@ func ExecuteCommand(args []string, stdout io.Writer) {
 	}
 
 	// External.
-	ExternalCommand(args, stdout)
+	if !ExternalCommand(args, stdout) {
+		fmt.Fprintf(stdout, "%s: command not found\n", name)
+	}
 }
