@@ -21,6 +21,26 @@ type AutoCompleter struct {
 func (c *AutoCompleter) Do(line []rune, pos int) (newLine [][]rune, length int) {
 	newLine, length = c.Completer.Do(line, pos)
 	if len(newLine) == 0 || length == 0 {
+		upToCursor := string(line[:pos])
+		lastSpace := strings.LastIndex(upToCursor, " ")
+		var current string
+		if lastSpace == -1 {
+			current = upToCursor
+		} else {
+			current = upToCursor[lastSpace+1:]
+		}
+
+		if current != "" {
+			suggestions := c.CompletePathExecutables(current)
+			if suggestions != nil && len(suggestions) > 0 {
+				res := make([][]rune, len(suggestions))
+				for i, s := range suggestions {
+					res[i] = []rune(s)
+				}
+				// length is the number of characters to replace (the token we completed)
+				return res, len(current)
+			}
+		}
 		fmt.Printf("\a")
 	}
 	return newLine, length
