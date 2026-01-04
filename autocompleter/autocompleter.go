@@ -6,6 +6,7 @@ import (
 	"path/filepath"
 	"sort"
 	"strings"
+	"time"
 
 	"github.com/chzyer/readline"
 	"github.com/codecrafters-io/shell-starter-go/command"
@@ -16,7 +17,7 @@ type AutoCompleter struct {
 	Readline   *readline.Instance
 	TabCount   int
 	LastPrefix string
-	LastWasTab bool
+	LastCall   time.Time
 }
 
 func (c *AutoCompleter) Do(line []rune, pos int) (newLine [][]rune, length int) {
@@ -45,24 +46,31 @@ func (c *AutoCompleter) Do(line []rune, pos int) (newLine [][]rune, length int) 
 		fmt.Printf("\a")
 	}
 	return newLine, length
-
 }
 
 func (c *AutoCompleter) SetInstance(rl *readline.Instance) {
 	c.Readline = rl
 }
+
 func (c *AutoCompleter) CompletePathExecutables(prefix string) []string {
-	//Reset tab count when prefix changes
+	now := time.Now()
+
+	// Reset tab count when prefix changes
 	if prefix != c.LastPrefix {
 		c.TabCount = 0
 		c.LastPrefix = prefix
-		c.LastWasTab = false
+		// reset LastCall to zero time so first press always increments
+		c.LastCall = time.Time{}
 	}
-	// Only increment TabCount once per physical Tab press for the current prefix
-	if !c.LastWasTab {
+
+	// Debounce: if this call is essentially the same call (same prefix, very quick),
+	// don't increment TabCount (avoid double-increment from multiple caller paths).
+	isDuplicate := !c.LastCall.IsZero() && prefix == c.LastPrefix && now.Sub(c.LastCall) < 100*time.Millisecond
+	if !isDuplicate {
 		c.TabCount++
-		c.LastWasTab = true
 	}
+	c.LastCall = now
+
 	dirs := command.GetPathEnvDirectories()
 	var matches []string
 	for _, dir := range dirs {
@@ -85,41 +93,48 @@ func (c *AutoCompleter) CompletePathExecutables(prefix string) []string {
 			}
 		}
 	}
+
 	if len(matches) == 0 {
 		if c.TabCount == 1 {
 			fmt.Printf("\a")
 		}
-		//nothing to show
 		return nil
 	}
+
+	// Only one match -> return the suffix + trailing space
 	if len(matches) == 1 {
-		//only 1 match -> complete and add trailing space
 		c.TabCount = 0
-		c.LastWasTab = false
+		c.LastCall = time.Time{}
 		suffix := matches[0][len(prefix):]
 		return []string{suffix + " "}
 	}
-	//multiple matches -> try longest common prefix(LCP)
+
+	// multiple matches -> try longest common prefix (LCP)
 	sort.Strings(matches)
 	lcp := longestCommonPrefix(matches)
-	//if lcp extends the typed prefix, return it to complete to that point
+
+	// If lcp extends the typed prefix, return the *suffix* (no space)
 	if len(lcp) > len(prefix) {
 		c.TabCount = 0
-		c.LastWasTab = false
+		c.LastCall = time.Time{}
 		return []string{lcp[len(prefix):]}
 	}
+
 	// lcp == prefix -> first tab rings bell, second tab prints matches
 	if c.TabCount == 1 {
 		fmt.Printf("\a")
 		return nil
 	}
+
+	// second tab: list matches
 	fmt.Println()
 	fmt.Println(strings.Join(matches, "  "))
 	c.Readline.Refresh()
 	c.TabCount = 0
-	c.LastWasTab = false
+	c.LastCall = time.Time{}
 	return nil
 }
+
 func FinalCompleter() *AutoCompleter {
 	completer := &AutoCompleter{}
 
@@ -135,6 +150,7 @@ func FinalCompleter() *AutoCompleter {
 	completer.Completer = inner
 	return completer
 }
+
 func longestCommonPrefix(args []string) string {
 	if len(args) == 0 {
 		return ""
