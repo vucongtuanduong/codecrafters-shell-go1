@@ -105,6 +105,7 @@ func ExecutePipeline(cmds [][]string, stdout io.Writer, stderr io.Writer) {
 				r.Close()
 			}
 			cleanUpProcesses(processes, prevReader)
+			return
 		}
 		// Parent should close its copy of previous read end and the writer we created.
 		if prevReader != nil {
@@ -119,6 +120,14 @@ func ExecutePipeline(cmds [][]string, stdout io.Writer, stderr io.Writer) {
 		prevReader = r
 
 		processes = append(processes, cmd)
+	}
+	// Wait in reverse order so consumers exit first and producers receive EOF/SIGPIPE.
+	for i := len(processes) - 1; i >= 0; i-- {
+		processes[i].Wait()
+	}
+	//ensure any leftover reader is closed
+	if prevReader != nil {
+		prevReader.Close()
 	}
 }
 func cleanUpProcesses(processes []*exec.Cmd, prevReader *os.File) {
