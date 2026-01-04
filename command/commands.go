@@ -60,13 +60,45 @@ func ExecutePipeline(cmds [][]string, stdout io.Writer, stderr io.Writer) {
 		return
 	}
 	var processes []*exec.Cmd
-	var prevReader *os.File
+	var prevReader io.ReadCloser
+	var builtInCmds []chan struct{}
 	for i, cmdArgs := range cmds {
 		if len(cmdArgs) == 0 {
 			//invalid command slice
+			cleanUpProcesses(processes, prevReader)
 			return
 		}
 		name := cmdArgs[0]
+		//Builtin handling
+		if handler, ok := BuiltinRegistry[name]; ok {
+			// If builtin is not the last command, connect it to the next via io.Pipe()
+			if i < len(cmds)-1 {
+				pr, pw := io.Pipe()
+				done := make(chan struct{})
+				//Run builtin in goroutine writing to pw
+				go func(h CommandHandler, args []string, out *io.PipeWriter, done chan struct{}) {
+					h(args, out)
+					out.Close()
+					close(done)
+				}(handler, cmdArgs[1:], pw, done)
+				// Parent doesn't hold writer; the reader becomes prevReader for next command.
+				if prevReader != nil {
+					prevReader.Close()
+				}
+				prevReader = pr
+				builtInCmds = append(builtInCmds, done)
+			} else {
+				// Last builtin — run it synchronously, writing to final stdout.
+				// Close any prior reader (we're not wiring it into the builtin's stdin here).
+				if prevReader != nil {
+					prevReader.Close()
+					prevReader = nil
+				}
+				handler(cmdArgs[1:], stdout)
+			}
+			continue
+		}
+		//external ocmmand handling
 		path, ok := FindInPath(name)
 		if !ok {
 			fmt.Fprintf(stdout, "%s: command not found\n", name)
@@ -80,23 +112,25 @@ func ExecutePipeline(cmds [][]string, stdout io.Writer, stderr io.Writer) {
 			cmd.Stdin = prevReader
 		}
 		//stdout
-		var r *os.File
-		var w *os.File
+		var r io.ReadCloser
+		var w io.WriteCloser
 		var err error
 		if i < len(cmds)-1 {
-			r, w, err = os.Pipe()
-			if err != nil {
+			rf, wf, e := os.Pipe()
+			if e != nil {
 				//cleanup
 				cleanUpProcesses(processes, prevReader)
 				return
 			}
+			r = rf
+			w = wf
 			cmd.Stdout = w
 		} else {
 			cmd.Stdout = stdout
 		}
 		//stderr
 		cmd.Stderr = stderr
-		if err := cmd.Start(); err != nil {
+		if err = cmd.Start(); err != nil {
 			//cleanup
 			if w != nil {
 				w.Close()
@@ -125,12 +159,16 @@ func ExecutePipeline(cmds [][]string, stdout io.Writer, stderr io.Writer) {
 	for i := len(processes) - 1; i >= 0; i-- {
 		processes[i].Wait()
 	}
+	// Wait for builtin goroutines to finish
+	for _, d := range builtInCmds {
+		<-d
+	}
 	//ensure any leftover reader is closed
 	if prevReader != nil {
 		prevReader.Close()
 	}
 }
-func cleanUpProcesses(processes []*exec.Cmd, prevReader *os.File) {
+func cleanUpProcesses(processes []*exec.Cmd, prevReader io.ReadCloser) {
 	for _, process := range processes {
 		if process.Process != nil {
 			process.Process.Kill()
