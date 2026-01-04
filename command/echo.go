@@ -2,12 +2,10 @@ package command
 
 import (
 	"fmt"
+	"io"
 	"strings"
 )
 
-type EchoCommand struct{}
-
-func (c *EchoCommand) Execute(args []string) error {
-	fmt.Println(strings.Join(args, " "))
-	return nil
+func EchoCommand(args []string, stdout io.Writer) {
+	fmt.Fprintln(stdout, strings.Join(args, " "))
 }

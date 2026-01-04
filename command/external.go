@@ -1,26 +1,34 @@
 package command
 
 import (
-	"fmt"
+	"io"
 	"os"
 	"os/exec"
+	"path/filepath"
+	"strings"
 )
 
-type ExternalCommand struct{}
+func ExternalCommand(args []string, stdout io.Writer) {
+	name := args[0]
+	cmdArgs := args[1:]
+	if path, ok := FindInPath(name); ok {
+		cmd := exec.Command(path, cmdArgs...)
+		cmd.Stdout = stdout
+		cmd.Stderr = os.Stderr
+		cmd.Args[0] = name
+		cmd.Run()
+		return
+	}
+}
+func FindInPath(command string) (string, bool) {
+	pathEnv := os.Getenv("PATH")
+	directories := strings.Split(pathEnv, ":")
 
-func (c *ExternalCommand) Execute(args []string) error {
-	if len(args) == 0 {
-		return nil
+	for _, dir := range directories {
+		fullPath := filepath.Join(dir, command)
+		if info, err := os.Stat(fullPath); err == nil && !info.IsDir() && info.Mode()&0100 != 0 {
+			return fullPath, true
+		}
 	}
-	cmd := args[0]
-	path, ok := searchPath(cmd)
-	if !ok {
-		return fmt.Errorf("%s: not found", cmd)
-	}
-	runCmd := exec.Command(cmd, args[1:]...)
-	runCmd.Path = path
-	runCmd.Stdin = os.Stdin
-	runCmd.Stdout = os.Stdout
-	runCmd.Stderr = os.Stderr
-	return runCmd.Run()
+	return "", false
 }

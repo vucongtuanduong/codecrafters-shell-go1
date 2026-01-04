@@ -2,16 +2,15 @@ package command
 
 import (
 	"fmt"
+	"io"
 	"os"
 )
 
-type PwdCommand struct{}
-
-func (c *PwdCommand) Execute(args []string) error {
+func PwdCommand(args []string, stdout io.Writer) {
 	dir, err := os.Getwd()
 	if err != nil {
-		return fmt.Errorf("error printing working directory")
+		fmt.Fprintf(os.Stderr, "pwd: %v\n", err)
+		return
 	}
-	fmt.Println(dir)
-	return nil
+	fmt.Fprintln(stdout, dir)
 }

@@ -5,7 +5,7 @@ import (
 	"unicode"
 )
 
-func ParseLine(line string) []string {
+func ParseInput(line string) []string {
 	var args []string
 	var b strings.Builder
 	inSingle := false

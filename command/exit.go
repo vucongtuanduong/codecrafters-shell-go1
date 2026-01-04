@@ -1,10 +1,10 @@
 package command
 
-import "os"
+import (
+	"io"
+	"os"
+)
 
-type ExitCommand struct{}
-
-func (e *ExitCommand) Execute(args []string) error {
+func ExitCommand(args []string, stdout io.Writer) {
 	os.Exit(0)
-	return nil
 }

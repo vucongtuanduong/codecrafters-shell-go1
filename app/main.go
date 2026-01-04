@@ -2,10 +2,10 @@ package main
 
 import (
 	"bufio"
-	"errors"
 	"fmt"
 	"io"
 	"os"
+	"strings"
 
 	"github.com/codecrafters-io/shell-starter-go/command"
 )
@@ -15,40 +15,36 @@ var _ = fmt.Print
 
 func main() {
 	reader := bufio.NewReader(os.Stdin)
-	reg := command.NewCommandRegistry()
-	repl("$ ", reader, reg)
-
-}
-func repl(prompt string, reader *bufio.Reader, reg *command.Registry) {
 	for {
-		fmt.Print(prompt)
-		line, err := reader.ReadString('\n')
+		fmt.Print("$ ")
+		input, err := reader.ReadString('\n')
 		if err != nil {
-			if errors.Is(err, io.EOF) {
-				fmt.Println()
-				return
-			}
 			fmt.Fprintln(os.Stderr, "Error reading input:", err)
 			os.Exit(1)
 		}
-		args := command.ParseLine(line)
-		if len(args) == 0 {
+
+		input = strings.TrimSpace(input)
+		if input == "" {
 			continue
 		}
-		cmdName := args[0]
-		cmdArgs := args[1:]
 
-		if cmd, ok := reg.Get(cmdName); ok {
-			if err := cmd.Execute(cmdArgs); err != nil {
-				fmt.Fprintln(os.Stderr, err)
+		comarr := command.ParseInput(input)
+		fmt.Println(comarr)
+		// Parse redirection.
+		args, redirectPath := command.ParseAndSetupRedirection(comarr)
+
+		// Set stdout writer.
+		var stdout io.Writer = os.Stdout
+		if redirectPath != "" {
+			file, err := os.OpenFile(redirectPath, os.O_WRONLY|os.O_CREATE|os.O_TRUNC, 0644)
+			if err != nil {
+				fmt.Fprintf(os.Stderr, "err: %v\n", err)
+				continue
 			}
-		} else {
-			// Fallback to external command
-			cmd, err := reg.Get("external")
-			if !err {
-				fmt.Fprintln(os.Stderr, err)
-			}
-			cmd.Execute(args)
+			defer file.Close()
+			stdout = file
 		}
+
+		command.ExecuteCommand(args, stdout)
 	}
 }

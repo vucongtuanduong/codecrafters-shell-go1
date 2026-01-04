@@ -2,21 +2,21 @@ package command
 
 import (
 	"fmt"
+	"io"
+	"os"
 )
 
-type TypeCommand struct{}
-
-func (c *TypeCommand) Execute(args []string) error {
+func TypeCommand(args []string, stdout io.Writer) {
 	if len(args) == 0 {
-		return fmt.Errorf("type: missing operand")
+		fmt.Fprintln(os.Stderr, "type: missing operand")
+		return
 	}
 	cmdLookup := args[0]
-	if _, ok := Builtins[cmdLookup]; ok {
-		fmt.Printf("%s is a shell builtin\n", cmdLookup)
-	} else if path, ok := searchPath(cmdLookup); ok {
-		fmt.Printf("%s is %s\n", cmdLookup, path)
+	if IsBuiltin(cmdLookup) {
+		fmt.Fprintf(stdout, "%s is a shell builtin\n", cmdLookup)
+	} else if path, ok := FindInPath(cmdLookup); ok {
+		fmt.Fprintf(stdout, "%s is %s\n", cmdLookup, path)
 	} else {
-		return fmt.Errorf("%s: not found", cmdLookup)
+		fmt.Fprintf(stdout, "%s: not found\n", cmdLookup)
 	}
-	return nil
 }
