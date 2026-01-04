@@ -85,7 +85,7 @@ func (c *AutoCompleter) CompletePathExecutables(prefix string) []string {
 		return nil
 	}
 	fmt.Println()
-	fmt.Println(strings.Join(matches, " "))
+	fmt.Println(strings.Join(matches, ""))
 	c.Readline.Refresh()
 	c.TabCount = 0
 	return nil
