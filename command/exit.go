@@ -6,5 +6,6 @@ import (
 )
 
 func ExitCommand(args []string, stdout io.Writer) {
+	WriteHistoryToFileWhenExit(stdout)
 	os.Exit(0)
 }

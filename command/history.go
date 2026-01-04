@@ -101,5 +101,10 @@ func InitHistoryFromFile() {
 		readHistoryFromFile(path, os.Stdout)
 		markHistoryPersisted()
 	}
-
+}
+func WriteHistoryToFileWhenExit(stdout io.Writer) {
+	path := os.Getenv("HISTFILE")
+	if path != "" {
+		writeHistoryToFile(path, os.Stdout)
+	}
 }
