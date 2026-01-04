@@ -18,6 +18,7 @@ var _ = fmt.Print
 const PROMPT = "$ "
 
 func main() {
+	command.InitHistoryFromFile()
 	completer := autocompleter.FinalCompleter()
 	rl, err := readline.NewEx(&readline.Config{
 		Prompt:       PROMPT,

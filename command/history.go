@@ -25,20 +25,7 @@ func HistoryCommand(args []string, stdout io.Writer) {
 	if len(args) == 2 {
 		if args[0] == "-r" {
 			filePath := args[1]
-			fileContent, err := os.ReadFile(filePath)
-			if err != nil {
-				fmt.Fprintf(stdout, "failed to read history from: %s: %v\n", filePath, err)
-				return
-			}
-			lines := strings.Split(string(fileContent), "\n")
-			for _, line := range lines {
-				//ignore empty lines
-				line = strings.TrimSpace(line)
-				if line == "" {
-					continue
-				}
-				AppendHistory(line)
-			}
+			readHistoryFromFile(filePath, stdout)
 		} else if args[0] == "-w" {
 			writeHistoryToFile(args[1], stdout)
 			return
@@ -61,6 +48,22 @@ func HistoryCommand(args []string, stdout io.Writer) {
 	minIndex = length - minIndex
 	for i := minIndex; i < length; i++ {
 		fmt.Printf("%5d  %s\n", i+1, History[i])
+	}
+}
+func readHistoryFromFile(filePath string, stdout io.Writer) {
+	fileContent, err := os.ReadFile(filePath)
+	if err != nil {
+		fmt.Fprintf(stdout, "failed to read history from: %s: %v\n", filePath, err)
+		return
+	}
+	lines := strings.Split(string(fileContent), "\n")
+	for _, line := range lines {
+		//ignore empty lines
+		line = strings.TrimSpace(line)
+		if line == "" {
+			continue
+		}
+		AppendHistory(line)
 	}
 }
 func writeHistoryToFile(filePath string, stdout io.Writer) {
@@ -88,4 +91,8 @@ func appendHistoryToFile(filePath string, stdout io.Writer) {
 	}
 	lastAppendIndex = len(History)
 	return
+}
+func InitHistoryFromFile() {
+	dir := os.Getenv("HISTFILE")
+	readHistoryFromFile(dir, os.Stdout)
 }
